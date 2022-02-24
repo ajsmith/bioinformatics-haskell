@@ -1,0 +1,17 @@
+# Emacs backup files
+*~
+
+# Archive files
+*.bz2
+*.gz
+*.tar
+*.tgz
+*.xz
+*.zip
+
+# MacOS Metadata
+.DS_Store
+
+# Cabal build artifacts
+/dist-newstyle/
+cabal.project.local
