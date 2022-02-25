@@ -18,10 +18,10 @@ spec = do
       (isEpsilon 0) `shouldBe` False
 
     it "is False for negative numbers" $ do
-      (is Epsilon (-1)) `shouldBe` False
+      (isEpsilon (-1)) `shouldBe` False
 
     it "is False for numbers bigger than epsilon" $ do
       (isEpsilon (2 * epsilon)) `shouldBe` False
 
     it "is True for epsilon" $ do
-      (is Epsilon) `shouldBe` False
+      (isEpsilon epsilon) `shouldBe` True
