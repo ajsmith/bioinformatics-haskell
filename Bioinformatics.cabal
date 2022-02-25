@@ -21,9 +21,18 @@ executable Bioinformatics
   main-is:             Main.hs
   -- other-modules:
   -- other-extensions:
-  build-depends:       base >=4.14 && <4.15
+  build-depends:
+    base >=4.14 && <4.15
   hs-source-dirs:      src
   default-language:    Haskell2010
+
+library
+  hs-source-dirs:
+    src
+  exposed-modules:
+    Epsilon
+  build-depends:
+    base >=4.14 && <4.15
 
 test-suite Bioinformatics-test
   default-language:    Haskell2010
@@ -31,7 +40,9 @@ test-suite Bioinformatics-test
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:
+    Bioinformatics,
     Cabal,
+    QuickCheck,
     base >=4.14 && <4.15,
     hspec
   build-tool-depends: hspec-discover:hspec-discover
