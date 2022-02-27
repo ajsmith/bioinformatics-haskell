@@ -2,9 +2,11 @@
 -- method.
 --
 -- Alexander Smith <asmitl@gmu.edu>
--- 2022
+--
 module Metropolis where
 import System.Random
+import Text.Printf
+import Control.Monad
 
 
 -- An energy function of x
@@ -34,7 +36,7 @@ step energyFunc temperature x dxrand prand = step' x dxrand prand
 
 
 -- Calculate the energy for each x position
-energies energyFunc xs = map energyFunc xs
+energies energyFunc = map energyFunc
 
 
 -- Compute the average energy for a list of x positions
@@ -68,3 +70,45 @@ transitionProbability eNew eOld temperature = exp ((-beta) * deltaE)
   where
     deltaE = eNew - eOld
     beta = 1 / temperature
+
+
+-- Run a set of Metropolis Monte Carlo experiments and print the
+-- results to STDOUT as a simple table.
+main :: IO ()
+main = do
+  gen1 <- newStdGen
+  gen2 <- newStdGen
+  let
+    n = 1000000
+    temperatures = [0.1, 0.2 .. 1]
+    experiments = [experiment gen1 gen2 n t | t<-temperatures]
+  printExperimentTable experiments
+
+
+-- Perform a Metropolis MC experiment for given N and T parameters.
+-- Random number generators, gen1 and gen2, are used to generate
+-- random moves for dx and random trial attempts.
+experiment gen1 gen2 n temperature = (n, temperature, eAvg, approxErr)
+  where
+    (x0:dxrand) = dxrandInit gen1
+    prand = prandInit gen2
+    xs = take n $ step energy temperature x0 dxrand prand
+    es = energies energy xs
+    eAvg = averageEnergy energy xs
+    approxErr = approximateError energy temperature xs
+
+
+-- Print a table of experiment results
+printExperimentTable experiments = do
+  putStrLn "N\tT\t<E>\tError"
+  mapM_ printExperimentRow experiments
+
+
+-- Print a table row of an experiment
+printExperimentRow (n, t, eAvg, approxErr) = do
+  printf "%d\t%.2f\t%.3f\t%.3f\n" n t eAvg approxErr
+
+
+-- Print an experiment somewhat verbosely
+printExperiment (n, t, eAvg, approxErr) = do
+  printf "N=%d T=%.2f <E>=%.3f Err=%.3f\n" n t eAvg approxErr
