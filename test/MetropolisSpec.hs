@@ -37,14 +37,14 @@ spec = do
 
   describe "Metropolis.step" $ do
     let
-      n = 100
-      xInit = 0
-      temp = 1
       dxrand = dxrandInit (mkStdGen 571)
       prand = prandInit (mkStdGen 703)
 
     it "produces a list of new positions for x using MC Metropolis method" $ do
       let
+        n = 100
+        xInit = 0
+        temp = 1
         xs = take n $ step energy temp xInit dxrand prand
         eAvg = averageEnergy energy xs
         eAvgErr = approximateError energy temp xs
