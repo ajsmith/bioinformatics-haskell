@@ -17,33 +17,48 @@ maintainer:          ajsmith@acm.org
 build-type:          Simple
 extra-source-files:  CHANGELOG.md, README.md
 
-executable Bioinformatics
+executable bioinformatics-main
   main-is:             Main.hs
   -- other-modules:
   -- other-extensions:
   build-depends:
+    bioinformatics-lib,
     base >=4.14 && <4.15
   hs-source-dirs:      src
   default-language:    Haskell2010
 
-library
+executable mc-metropolis
+  main-is:             MetropolisMain.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:
+    bioinformatics-lib,
+    base >=4.14 && <4.15,
+    random
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+
+library bioinformatics-lib
   hs-source-dirs:
     src
   exposed-modules:
     Epsilon
+    Metropolis
   build-depends:
-    base >=4.14 && <4.15
+    base >=4.14 && <4.15,
+    random
 
-test-suite Bioinformatics-test
+test-suite bioinformatics-test
   default-language:    Haskell2010
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
   build-depends:
-    Bioinformatics,
+    bioinformatics-lib,
     Cabal,
     QuickCheck,
     base >=4.14 && <4.15,
-    hspec
+    hspec,
+    random
   build-tool-depends: hspec-discover:hspec-discover
   -- build-tool-depends: hspec-discover:hspec-discover == 2.*
