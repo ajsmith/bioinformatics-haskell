@@ -30,7 +30,7 @@ prandInit = randoms
 step energyFunc temperature x dxrand prand = step' x dxrand prand
   where
     transition' = transition energyFunc temperature
-    step' x (dx:dxrand) (p:prand) = x':(step' x' dxrand prand)
+    step' x (dx:dxrand) (p:prand) = x:(step' x' dxrand prand)
       where
         x' = transition' x dx p
 
