@@ -48,5 +48,5 @@ spec = do
         xs = take n $ step energy temp xInit dxrand prand
         eAvg = averageEnergy energy xs
         eAvgErr = approximateError energy temp xs
-      (showFFloat (Just 3) eAvg "") `shouldBe` "0.541"
+      (showFFloat (Just 3) eAvg "") `shouldBe` "0.534"
       ((abs eAvgErr) < 0.1) `shouldBe` True
