@@ -50,3 +50,32 @@ spec = do
         eAvgErr = approximateError energy temp xs
       (showFFloat (Just 3) eAvg "") `shouldBe` "0.534"
       ((abs eAvgErr) < 0.1) `shouldBe` True
+
+
+  describe "Metropolis.Metropolis" $ do
+    let
+      temp = 1
+      x0 = 100
+      delta = 10
+
+    it "can produce a trivial simulation of only the initial values" $ do
+      let
+        n = 1
+        rands = []
+        sim = Metropolis energy temp x0 delta n rands
+      (positions sim) `shouldBe` [100]
+      (energies' sim) `shouldBe` [1000]
+      (averageEnergy' sim) `shouldBe` 1000
+
+    it "can be used for all Metropolis conditions" $ do
+      let
+        n = 4
+        rands = [
+          0, 0, -- Next E is lower, so it's automatically taken.
+          0.7, 0.9, -- Next E is higher, and the roll fails
+          0.6, 0.0000000001 -- Next E is higher, and the roll passes
+          ]
+        sim = Metropolis energy temp x0 delta n rands
+      (positions sim) `shouldBe` [100, 95, 95, 96]
+      (energies' sim) `shouldBe` [1000, 902.5, 902.5, 921.6]
+      (averageEnergy' sim) `shouldBe` 931.65

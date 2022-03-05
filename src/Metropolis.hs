@@ -16,9 +16,9 @@ import Control.Monad
 --   temperature :: Real a => a
 --   x start :: Real a => a
 --   delta x :: Real a => a
---   randoms :: [Double]
 --   step max :: Int
-data (Real a) => Simulation a = Metropolis (a -> a) a a a [Double] Int
+--   randoms :: [Double]
+data (Real a) => Simulation a = Metropolis (a -> a) a a a Int [Double]
 
 
 -- The energy function used in the simulation
@@ -26,21 +26,22 @@ energyFunction (Metropolis efun _ _ _ _ _) = efun
 
 
 -- The maximum number of steps the simulation will take
-stepMax (Metropolis _ _ _ _ _ stepMax') = stepMax'
+stepMax (Metropolis _ _ _ _ stepMax' _) = stepMax'
 
 
 -- The positions of x in the simulation
-positions (Metropolis efun t x0 dx rand stepMax) = take stepMax positions'
+positions (Metropolis efun t x0 dx stepMax rand) = take stepMax positions'
   where
     positions' = steps efun t x0 dx rand
 
 
 -- Recursion using the Metropolis method which builds an infinite list
 -- of the positions of x
-steps efun t x delta (r1:r2:rs) = x:(steps efun t x' delta rs)
+steps efun t x delta rs = x:(steps efun t x' delta rs')
   where
     x' = transition efun t x dx r2
     dx = delta * (r1 - 0.5)
+    (r1:r2:rs') = rs
 
 
 -- The energies corresponding to the x positions
