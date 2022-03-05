@@ -57,22 +57,42 @@ spec = do
       temp = 1
       x0 = 100
       stepDelta = 10
+      makeSim n rands = Metropolis energy temp x0 stepDelta n rands
 
-    it "has basic features which can be retrieved by simple functions" $ do
+    it "has an energy function" $ do
       let
         n = 1
-        rands = [0, 0]
-        sim = Metropolis energy temp x0 stepDelta n rands
+        rands = []
+        sim = makeSim n rands
+      (energyFunction sim $ 100) `shouldBe` 1000
+
+    it "has a temperature" $ do
+      let
+        n = 1
+        rands = []
+        sim = makeSim n rands
       (temperature sim == 1) `shouldBe` True
-      (energyFunction sim $ 0) `shouldBe` 0
-      (stepMax sim == 1) `shouldBe` True
+
+    it "has a step max" $ do
+      let
+        n = 999
+        rands = []
+        sim = makeSim n rands
+      (stepMax sim == 999) `shouldBe` True
+      (delta sim == 10) `shouldBe` True
+
+    it "has a delta size" $ do
+      let
+        n = 999
+        rands = []
+        sim = makeSim n rands
       (delta sim == 10) `shouldBe` True
 
     it "can produce a trivial simulation of only the initial values" $ do
       let
         n = 1
         rands = []
-        sim = Metropolis energy temp x0 stepDelta n rands
+        sim = makeSim n rands
       (positions sim) `shouldBe` [100]
       (energies' sim) `shouldBe` [1000]
       (averageEnergy' sim) `shouldBe` 1000
@@ -85,7 +105,7 @@ spec = do
           0.7, 0.9, -- Next E is higher, and the roll fails
           0.6, 0.0000000001 -- Next E is higher, and the roll passes
           ]
-        sim = Metropolis energy temp x0 stepDelta n rands
+        sim = makeSim n rands
       (positions sim) `shouldBe` [100, 95, 95, 96]
       (energies' sim) `shouldBe` [1000, 902.5, 902.5, 921.6]
       (averageEnergy' sim) `shouldBe` 931.65
