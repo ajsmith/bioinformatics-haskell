@@ -15,7 +15,7 @@ import Control.Monad
 --   energy function :: Real a => a -> a
 --   temperature :: Real a => a
 --   x start :: Real a => a
---   delta x :: Real a => a
+--   delta size :: Real a => a
 --   step max :: Int
 --   randoms :: [Double]
 data (Real a) => Simulation a = Metropolis (a -> a) a a a Int [Double]
@@ -25,8 +25,16 @@ data (Real a) => Simulation a = Metropolis (a -> a) a a a Int [Double]
 energyFunction (Metropolis efun _ _ _ _ _) = efun
 
 
--- The maximum number of steps the simulation will take
+-- The temperature in the simulation
+temperature (Metropolis _ t _ _ _ _) = t
+
+
+-- The maximum number of steps in the simulation
 stepMax (Metropolis _ _ _ _ stepMax' _) = stepMax'
+
+
+-- The step delta of x in the simulation
+delta (Metropolis _ _ _ delta' _ _) = delta'
 
 
 -- The positions of x in the simulation
@@ -52,6 +60,13 @@ energies' sim = map (energyFunction sim) (positions sim)
 averageEnergy' sim = (sum (energies' sim)) / n
   where
     n = fromIntegral $ length $ positions sim
+
+
+-- The approximate error of the simulation
+approximateError' sim = (2 * eAvg - t) / t
+  where
+    eAvg = averageEnergy' sim
+    t = temperature sim
 
 
 -- An energy function of x
