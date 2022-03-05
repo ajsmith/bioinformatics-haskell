@@ -132,14 +132,42 @@ transitionProbability eNew eOld temperature = exp ((-beta) * deltaE)
     beta = 1 / temperature
 
 
+newMain :: IO ()
+newMain = do
+  gen1 <- newStdGen
+  let
+    temperatures = [0.1, 0.2 .. 1]
+    n = 10000000
+    x0 = 100
+    delta = 10
+    rs = take (2 * n) $ (randoms gen1 :: [Double])
+    sims = [Metropolis energy t x0 delta n rs | t<-temperatures]
+  printSimTable sims
+
+-- Print a table of experiment results
+printSimTable sims = do
+  putStrLn "N\tT\t<E>\tError"
+  mapM_ printSimRow sims
+
+
+-- Print a table row of an experiment
+printSimRow sim = do
+  printf "%d\t%.2f\t%.3f\t%.3f\n" n t eAvg approxErr
+  where
+    n = stepMax sim
+    t = temperature sim
+    eAvg = averageEnergy' sim
+    approxErr = approximateError' sim
+
+
 -- Run a set of Metropolis Monte Carlo experiments and print the
 -- results to STDOUT as a simple table.
-main :: IO ()
-main = do
+oldMain :: IO ()
+oldMain = do
   gen1 <- newStdGen
   gen2 <- newStdGen
   let
-    n = 1000000
+    n = 10000000
     temperatures = [0.1, 0.2 .. 1]
     experiments = [experiment gen1 gen2 n t | t<-temperatures]
   printExperimentTable experiments
@@ -150,7 +178,8 @@ main = do
 -- random moves for dx and random trial attempts.
 experiment gen1 gen2 n temperature = (n, temperature, eAvg, approxErr)
   where
-    (x0:dxrand) = dxrandInit gen1
+    x0 = 100
+    dxrand = dxrandInit gen1
     prand = prandInit gen2
     xs = take n $ step energy temperature x0 dxrand prand
     es = energies energy xs
@@ -186,3 +215,8 @@ printExperimentRow (n, t, eAvg, approxErr) = do
 -- Print an experiment somewhat verbosely
 printExperiment (n, t, eAvg, approxErr) = do
   printf "N=%d T=%.2f <E>=%.3f Err=%.3f\n" n t eAvg approxErr
+
+
+main = do
+  newMain
+--  oldMain
