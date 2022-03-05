@@ -9,6 +9,50 @@ import Text.Printf
 import Control.Monad
 
 
+-- Data type for Metropolis Monte Carlo simulations
+--
+-- Metropolis constructor parameters:
+--   energy function :: Real a => a -> a
+--   temperature :: Real a => a
+--   x start :: Real a => a
+--   delta x :: Real a => a
+--   randoms :: [Double]
+--   step max :: Int
+data (Real a) => Simulation a = Metropolis (a -> a) a a a [Double] Int
+
+
+-- The energy function used in the simulation
+energyFunction (Metropolis efun _ _ _ _ _) = efun
+
+
+-- The maximum number of steps the simulation will take
+stepMax (Metropolis _ _ _ _ _ stepMax') = stepMax'
+
+
+-- The positions of x in the simulation
+positions (Metropolis efun t x0 dx rand stepMax) = take stepMax positions'
+  where
+    positions' = steps efun t x0 dx rand
+
+
+-- Recursion using the Metropolis method which builds an infinite list
+-- of the positions of x
+steps efun t x delta (r1:r2:rs) = x:(steps efun t x' delta rs)
+  where
+    x' = transition efun t x dx r2
+    dx = delta * (r1 - 0.5)
+
+
+-- The energies corresponding to the x positions
+energies' sim = map (energyFunction sim) (positions sim)
+
+
+-- The average energy of the simulation
+averageEnergy' sim = (sum (energies' sim)) / n
+  where
+    n = fromIntegral $ length $ positions sim
+
+
 -- An energy function of x
 energy x = k * x**2
   where
@@ -96,6 +140,20 @@ experiment gen1 gen2 n temperature = (n, temperature, eAvg, approxErr)
     es = energies energy xs
     eAvg = averageEnergy energy xs
     approxErr = approximateError energy temperature xs
+
+
+acceptanceRate energyFun xs = acceptances' / (n - 1)
+  where
+    n = fromIntegral $ length xs
+    acceptances' = acceptances energyFun xs
+
+
+acceptances energyFun ([]) = 0
+acceptances energyFun (_:[]) = 0
+acceptances energyFun (x1:x2:xs) =
+  if energyFun x2 > energyFun x1
+  then 1 + (acceptances energyFun (x2:xs))
+  else acceptances energyFun (x2:xs)
 
 
 -- Print a table of experiment results
