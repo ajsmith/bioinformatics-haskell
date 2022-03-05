@@ -59,7 +59,7 @@ energies' sim = map (energyFunction sim) (positions sim)
 -- The average energy of the simulation
 averageEnergy' sim = (sum (energies' sim)) / n
   where
-    n = fromIntegral $ length $ positions sim
+    n = fromIntegral $ length $ energies' sim
 
 
 -- The approximate error of the simulation
@@ -73,6 +73,14 @@ approximateError' sim = (2 * eAvg - t) / t
 energy x = k * x**2
   where
     k = 0.1
+
+
+results sim = (n, t, eAvg, approxErr)
+  where
+    n = stepMax sim
+    t = temperature sim
+    eAvg = averageEnergy' sim
+    approxErr = approximateError' sim
 
 
 -- Initialize an infinite list of random changes to x
@@ -137,7 +145,7 @@ newMain = do
   gen1 <- newStdGen
   let
     temperatures = [0.1, 0.2 .. 1]
-    n = 10000000
+    n = 100000
     x0 = 100
     delta = 10
     rs = take (2 * n) $ (randoms gen1 :: [Double])
@@ -154,10 +162,7 @@ printSimTable sims = do
 printSimRow sim = do
   printf "%d\t%.2f\t%.3f\t%.3f\n" n t eAvg approxErr
   where
-    n = stepMax sim
-    t = temperature sim
-    eAvg = averageEnergy' sim
-    approxErr = approximateError' sim
+    (n, t, eAvg, approxErr) = results sim
 
 
 -- Run a set of Metropolis Monte Carlo experiments and print the
@@ -167,7 +172,7 @@ oldMain = do
   gen1 <- newStdGen
   gen2 <- newStdGen
   let
-    n = 10000000
+    n = 100000
     temperatures = [0.1, 0.2 .. 1]
     experiments = [experiment gen1 gen2 n t | t<-temperatures]
   printExperimentTable experiments
@@ -219,4 +224,4 @@ printExperiment (n, t, eAvg, approxErr) = do
 
 main = do
   newMain
---  oldMain
+  oldMain
